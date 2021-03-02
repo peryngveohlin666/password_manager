@@ -127,3 +127,15 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+Specs.xdv
+Specs.synctex.gz
+Specs.aux
+Specs.bbl
+Specs.blg
+Specs.bcf
+diagrams/depolyment.vpp.bak_001d
+diagrams/depolyment.vpp.bak_000f
+diagrams/depolyment.vpp.bak_002d
+Specs.fdb_latexmk
+Specs.fls
+Specs.run.xml
