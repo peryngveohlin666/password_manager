@@ -59,7 +59,19 @@ We are proposing to build a command-line program to manage a user's passwords si
 \section{Typical Users}
 The intended users are those individuals who are concerned with the management of their passwords. This is often the case as people have had to start using more complex passwords to protect their accounts from attackers. As the number of accounts a user has grows, so does the amount of passwords (providing they use unique password for each service). This means that the average person will have to remember a large number of complex passwords which don't have any meaning to them. Increasing the chances of them forgetting one. A password manager makes that much easier by putting them all in one place. This means the user only has to remember one complex passphrase. The password manager would have to be very secure for a user to trust their most important details with it. That is why this password manager can be deployed by users on their own servers, giving them finer control of access to their data. The users will be able to access their keychain from any device with an internet connection that can run Python (the client).
 \section{Implementation}
-The application will be coded using Python. The implementation will use symmetric encryption for transferring passwords so the server will be unable to see the passwords. The encryption key will be stored locally on the client alongside a username and password when you initially log in or register. Google cloud will be used to host the server, upon log in the password is hashed with the salt and compared to the one present in the database. If they match, the request is completed and the server will fetch the credentials from the database. Registration is similar but nothing is returned. Atlas, a management server for MongoDB will be used to monitor the status of the database and for testing. The PyMongo library will be used to integrate MongoDB into Python and web sockets will be used for data transmission between the server and client.
+The application will be coded using Python. The implementation will use symmetric encryption for transferring passwords so the server will be unable to see the passwords. The encryption key will be stored locally on the client alongside a username and password when you initially log in or register. Google cloud will be used to host the server, upon log in the password is hashed with the salt and compared to the one present in the database. If they match, the request is completed and the server will fetch the credentials from the database. Registration is similar but nothing is returned. Atlas, a management server for MongoDB will be used to monitor the status of the database and for testing. The PyMongo library will be used to integrate MongoDB into Python and web sockets will be used for data transmission between the server and client. We will be using Google Cloud which has integrations with MongoDB Atlas.
+\section{Architecture of Application}
+\begin{figure}
+\centering
+\includegraphics[width=1.0\textwidth]{diagrams/erd.jpg}
+\caption{Entity Relationship Diagram}
+\end{figure}
+\begin{figure}
+\centering
+\includegraphics[width=1.0\textwidth]{diagrams/dd.jpg}
+\caption{Deployment Diagram}
+\end{figure}
+
 \section{Distribution of Work}
 To ensure that the work is evenly distributed between the team, we have divided the tasks as follows. All members will be taking part in every stage but each member will be in charge of a part of the project.
 \par
