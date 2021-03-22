@@ -48,14 +48,14 @@ def change_user_password(username, password_hash, new_password_hash, new_passwor
 
 
 # get the accounts for a website for the owner (which is the username for the logged in user. Return a list of comma
-# separated username and passwords like: ["username,password", "username2,password2"].
+# separated username and passwords like: ["username,password,description", "username2,password2,description2"].
 def get_accounts(owner, website):
     global accounts_collection
     try:
         accounts_list = []
         accounts = accounts_collection.find({"owner":owner, "website":website})
         for account in accounts:
-            tmp_account = account["username"] + "," + account["password"]
+            tmp_account = account["username"] + "," + account["password"] + "," + account["description"]
             accounts_list.append(tmp_account)
         return accounts_list
     except Exception:
