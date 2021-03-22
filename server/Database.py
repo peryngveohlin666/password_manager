@@ -16,7 +16,7 @@ users_collection = database["Users"]
 # initialize the accounts collection
 accounts_collection = database["Accounts"]
 
-#can use flask bcrypt for hashing
+
 
 # register a user in the database, take a username a password hash and the password salt as the input
 def register_user(username, password_hash, password_salt):
