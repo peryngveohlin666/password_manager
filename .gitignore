@@ -25,6 +25,7 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.idea
 MANIFEST
 
 # PyInstaller
@@ -143,3 +144,6 @@ diagrams/depolyment.vpp.bak_006d
 diagrams/depolyment.vpp.bak_005d
 diagrams/depolyment.vpp.bak_004d
 diagrams/depolyment.vpp.bak_003d
+
+#Mongo uri
+server/mongo.txt

@@ -16,12 +16,14 @@ users_collection = database["Users"]
 # initialize the accounts collection
 accounts_collection = database["Accounts"]
 
+#can use flask bcrypt for hashing
 
 # register a user in the database, take a username a password hash and the password salt as the input
 def register_user(username, password_hash, password_salt):
     global users_collection
     if not users_collection.find_one({"username": username}):
-        users_collection.insert_one({"username": username, "password_hash": password_hash, "password_salt": password_salt})
+        users_collection.insert_one(
+            {"username": username, "password_hash": password_hash, "password_salt": password_salt})
 
 
 # compare the password hash to the one stored in the database for the username and return true if they are the same
@@ -53,7 +55,7 @@ def get_accounts(owner, website):
     global accounts_collection
     try:
         accounts_list = []
-        accounts = accounts_collection.find({"owner":owner, "website":website})
+        accounts = accounts_collection.find({"owner": owner, "website": website})
         for account in accounts:
             tmp_account = account["username"] + "," + account["password"] + "," + account["description"]
             accounts_list.append(tmp_account)

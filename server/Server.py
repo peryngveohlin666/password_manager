@@ -5,7 +5,7 @@ import Database
 
 HOST = '127.0.0.1'
 PORT = 7016
-LOGGED= False
+LOGGED = False
 
 bufSize = 1024
 
