@@ -1,14 +1,19 @@
-def get_accounts(website):
-    return ["username,password"]
+import socket
+import time
+
+HOST = '127.0.0.1'
+PORT = 7016
 
 
-def register(username, password):
-    pass
+def request(username, password):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as soc:
+        soc.connect((HOST, PORT))
+        soc.sendall(str.encode("let me in"))
+        while True:
 
-
-def login(username, password):
-    pass
-
-
-def insert_account(username, password, website, description=""):
-    pass
+            message = soc.recv(1024)
+            if str(message).startswith('b\'please login'):
+                print("why?")
+                soc.sendall(str.encode('login ' +username+' '+password))
+                time.sleep(1)
+            print(message)
