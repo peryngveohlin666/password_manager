@@ -1,6 +1,4 @@
-import socket
-import ssl
-import time
+import concurrent.futures
 
 import socket
 import ssl
@@ -12,6 +10,8 @@ server_cert = '../server/server.crt'
 client_cert = 'client.crt'
 client_key = 'client.key'
 
+BUFFER_SIZE = 4096
+
 context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=server_cert)
 context.load_cert_chain(certfile=client_cert, keyfile=client_key)
 
@@ -19,25 +19,49 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 conn = context.wrap_socket(s, server_side=False, server_hostname=server_sni_hostname)
 conn.connect((HOST, PORT))
 print("SSL established. Peer: {}".format(conn.getpeercert()))
-print("Sending: 'Hello, world!")
-conn.send(b"Hello, world!")
-print("Closing connection")
-conn.close()
+
+message = b''
+response = b''
 
 
+def handle_conn():
+    global message
+    global response
+    global conn
+
+    while True:
+
+        # if there is a message, send it
+        if message != b'':
+            conn.send(message)
+            message = b''
+            print("message = ")
+            print(message)
+
+        response = conn.recv(BUFFER_SIZE)
+        if response != b'':
+            on_message_received(response)
+            response = b''
 
 
+def on_message_received(message):
+    print("response ")
+    print(message)
+    send_message(message)
 
 
-# def request(username, password):
-#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as soc:
-#         soc.connect((HOST, PORT))
-#         soc.sendall(str.encode("let me in"))
-#         while True:
-#
-#             message = soc.recv(1024)
-#             if str(message).startswith('b\'please login'):
-#                 print("why?")
-#                 soc.sendall(str.encode('login ' +username+' '+password))
-#                 time.sleep(1)
-#             print(message)
+def send_message(msg):
+    global message
+
+    ongoing_message = b'' + msg.encode("ascii")
+    message = ongoing_message
+
+
+def login(username, password):
+    send_message("l:" + username + "," + password)
+
+print("logging in")
+login("super", "sexy")
+
+thread_executor = concurrent.futures.ThreadPoolExecutor()
+t = thread_executor.submit(handle_conn())
