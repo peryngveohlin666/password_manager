@@ -2,8 +2,10 @@
 
 import argparse
 import os.path
-
+import Client
 #need to finish server side first.
+
+
 
 parser = argparse.ArgumentParser(description="Welcome to the DesuPassword Manager!")
 
@@ -37,3 +39,7 @@ if txtSize == 0:
 
 
 args = parser.parse_args()
+
+
+Client.register("hi","there")
+Client.start_client()
