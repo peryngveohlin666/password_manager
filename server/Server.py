@@ -3,6 +3,9 @@ import socket
 import ssl
 import concurrent.futures
 import sys
+import bcrypt
+from server import Database
+
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 7777
@@ -59,6 +62,16 @@ def on_message_received(message):
     print("response ")
     print(message)
     send_message(message)
+
+def register(username, password):
+    salt = bcrypt.gensalt()
+    password_hash = bcrypt.hashpw(password, salt)
+    Database.register_user(username, password_hash, salt)
+
+def login(username, password):
+    salt = Database.get_salt(username)
+    password_hash = bcrypt.hashpw(password, salt)
+    return Database.login_user(username, password_hash)
 
 def send_message(msg):
     global message

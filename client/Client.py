@@ -2,6 +2,8 @@ import concurrent.futures
 
 import socket
 import ssl
+import bcrypt
+from server import Database
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 7777
@@ -57,8 +59,14 @@ def send_message(msg):
     message = ongoing_message
 
 
+#def register():
+
+
 def login(username, password):
+
     send_message("l:" + username + "𝄫" + password)
+
+
 
 print("logging in")
 login("super", "sexy")

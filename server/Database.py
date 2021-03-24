@@ -25,6 +25,14 @@ def register_user(username, password_hash, password_salt):
         users_collection.insert_one(
             {"username": username, "password_hash": password_hash, "password_salt": password_salt})
 
+def get_salt(username):
+    global users_collection
+    try:
+        user = users_collection.find_one({"username": username})
+        return user["password_salt"]
+    except Exception:
+        return ""
+
 
 # compare the password hash to the one stored in the database for the username and return true if they are the same
 # return false otherwise, return false on error
