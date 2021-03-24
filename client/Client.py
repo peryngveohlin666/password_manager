@@ -53,12 +53,12 @@ def on_message_received(message):
 def send_message(msg):
     global message
 
-    ongoing_message = b'' + msg.encode("ascii")
+    ongoing_message = b'' + str.encode(msg)
     message = ongoing_message
 
 
 def login(username, password):
-    send_message("l:" + username + "," + password)
+    send_message("l:" + username + "𝄫" + password)
 
 print("logging in")
 login("super", "sexy")

@@ -1,3 +1,4 @@
+from server.Database import login_user
 import socket
 import ssl
 import concurrent.futures
@@ -37,7 +38,8 @@ def handle_client(sock):
             data = conn.recv(BUFFER_SIZE)
             string_data = str(data)
             print(string_data)
-            # if string_data.startswith("l:"):
+            if string_data.startswith("b'l:'"):
+                print(string_data.split("𝄫"))
 
     finally:
         print("Closing connection")
@@ -52,3 +54,16 @@ while True:
     thread_executor = concurrent.futures.ThreadPoolExecutor()
     t = thread_executor.submit(handle_client, newsocket)
     threads.append(t)
+
+def on_message_received(message):
+    print("response ")
+    print(message)
+    send_message(message)
+
+def send_message(msg):
+    global message
+
+    ongoing_message = b'' + str.encode(msg)
+    message = ongoing_message
+
+
