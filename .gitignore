@@ -147,3 +147,4 @@ diagrams/depolyment.vpp.bak_003d
 
 #Mongo uri
 server/mongo.txt
+tests/mongo.txt
