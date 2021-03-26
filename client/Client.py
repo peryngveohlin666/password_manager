@@ -8,7 +8,7 @@ import os.path
 
 
 HOST = socket.gethostbyname(socket.gethostname())
-PORT = 6954
+PORT = 6951
 server_sni_hostname = 'example.com'
 server_cert = '../server/server.crt'
 client_cert = 'client.crt'
@@ -19,10 +19,10 @@ BUFFER_SIZE = 4096
 parser = argparse.ArgumentParser(description="Welcome to the DesuPassword Manager!")
 parser.add_argument("--login", default=False, help="login <username> <password>", nargs=2)
 parser.add_argument("--register", default=False, help="register <username> <password>", nargs=2)
-parser.add_argument("--add-account", default=False, help="--add_account <username> <password> <website> ", nargs=3)
+parser.add_argument("--add-account", default=False, help="--add-account <username> <password> <website> ", nargs=3)
+parser.add_argument("--get-accounts", default=False, help="--add-accounts <website> ", nargs=1)
 
 args = parser.parse_args()
-print(args)
 
 
 message = b''
@@ -48,6 +48,11 @@ def register(username, password):
 def add_account(username, password, website):
     global login_details
     send_message("a: " + login_details + " " + username + " " + password + " " + website)
+
+
+def get_accounts(website):
+    global login_details
+    send_message("g: " + login_details + " " + website)
 
 
 if args.login:
@@ -79,6 +84,13 @@ if args.add_account:
 
     add_account(account_name, account_password, account_website)
 
+if args.get_accounts:
+
+    account_website = args.get_accounts[0]
+
+    get_accounts(account_website)
+
+
 
 context = ssl.create_default_context(
     ssl.Purpose.SERVER_AUTH, cafile=server_cert)
@@ -88,13 +100,14 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 conn = context.wrap_socket(
     s, server_side=False, server_hostname=server_sni_hostname)
 conn.connect((HOST, PORT))
-print("SSL established. Peer: {}".format(conn.getpeercert()))
 
 
 def handle_conn():
     global message
     global response
     global conn
+
+    last_response = b''
 
     while True:
 
@@ -105,16 +118,24 @@ def handle_conn():
 
         response = conn.recv(BUFFER_SIZE)
 
-        if response != b'':
-            print(response)
+        if response != b'' and last_response != response:
             sys.stdout.flush()
             on_message_received(str(response))
             response = b''
+            last_response = response
 
 
 def on_message_received(message):
-    print("response: " + str(message))
-    sys.stdout.flush()
+    message = message[2:len(message) - 1]
+    args = message.split(" ")
+    if args[0] == 'ac:':
+        args = args[1:]
+        for arg in args:
+            account = arg.split(",")
+            print("Username: " + account[0], "--- Password " + account[1])
+    exit()
+
+
 
 
 def start_client():
