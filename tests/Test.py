@@ -1,4 +1,4 @@
-from server import Database
+from server import Server as Database
 
 # testing login and register for the database code
 Database.register_user("test", "test", "test")
