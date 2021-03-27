@@ -23,7 +23,7 @@ accounts_collection = database["Accounts"]
 
 
 HOST = socket.gethostbyname(socket.gethostname())
-PORT = 6951
+PORT = 6952
 
 server_cert = 'server.crt'
 server_key = 'server.key'
@@ -155,6 +155,7 @@ def handle_client(sock):
                     insert_account(args[1], args[3], args[4], args[5])
             if args[0] == 'g:':
                 print("g")
+              #  print(args[1],args[2])
                 if login(args[1], args[2]):
                     print("logged")
                     accounts = get_accounts(args[1], args[3])

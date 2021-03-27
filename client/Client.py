@@ -4,11 +4,10 @@ import socket
 import ssl
 import sys
 import argparse
-import os.path
 
 
 HOST = socket.gethostbyname(socket.gethostname())
-PORT = 6951
+PORT = 6952
 server_sni_hostname = 'example.com'
 server_cert = '../server/server.crt'
 client_cert = 'client.crt'
@@ -16,11 +15,18 @@ client_key = 'client.key'
 
 BUFFER_SIZE = 4096
 
-parser = argparse.ArgumentParser(description="Welcome to the DesuPassword Manager!")
-parser.add_argument("--login", default=False, help="login <username> <password>", nargs=2)
-parser.add_argument("--register", default=False, help="register <username> <password>", nargs=2)
-parser.add_argument("--add-account", default=False, help="--add-account <username> <password> <website> ", nargs=3)
-parser.add_argument("--get-accounts", default=False, help="--add-accounts <website> ", nargs=1)
+parser = argparse.ArgumentParser(
+    description="Welcome to the DesuPassword Manager!")
+parser.add_argument("--login", default=False,
+                    help="login <username> <password>", nargs=2)
+parser.add_argument("--logout", help="--logout",
+                    action="store_const", const=True)
+parser.add_argument("--register", default=False,
+                    help="register <username> <password>", nargs=2)
+parser.add_argument("--add-account", default=False,
+                    help="--add-account <username> <password> <website> ", nargs=3)
+parser.add_argument("--get-accounts", default=False,
+                    help="--add-accounts <website> ", nargs=1)
 
 args = parser.parse_args()
 
@@ -29,9 +35,18 @@ message = b''
 response = b''
 
 
-txt_file = open("login.txt", "r")
-login_details = txt_file.read()
-txt_file.close()
+# was an argument passed
+if not len(sys.argv) > 1:
+    sys.exit("you did not pass any arguments, exiting.")
+# one liner to open the file and extract the login and whether or not details are present
+with open("login.txt", "r") as file:
+    login_details = file.read()
+    logged = login_details != ""
+
+
+def check_logged_in():
+    if not logged:
+        sys.exit("you are not logged in, exiting.")
 
 
 def send_message(msg):
@@ -42,54 +57,44 @@ def send_message(msg):
 
 
 def register(username, password):
-    send_message("r: " + username + " " + password)
+    print(' '.join(["registering:", username, password]))
+    send_message(' '.join(["r:", username, password]))
 
 
 def add_account(username, password, website):
     global login_details
-    send_message("a: " + login_details + " " + username + " " + password + " " + website)
+    check_logged_in()
+    print(' '.join(["adding account:", username, "for",
+                    website, "with user", login_details.split(' ')[0]]))
+    send_message(' '.join(["a:", login_details, username, password, website]))
 
 
 def get_accounts(website):
     global login_details
-    send_message("g: " + login_details + " " + website)
+    check_logged_in()
+
+    send_message(' '.join(["g:", str(login_details), website]))
 
 
 if args.login:
-    auth_details = open("login.txt", "w")
+    with open("login.txt", "w") as auth_details:
+        auth_details.write(' '.join(args.login))
 
-    auth_details.write(args.login[0] + " " + args.login[1])
-    auth_details.close()
+
+if args.logout:
+    with open("login.txt", "w") as auth_details:
+        auth_details.write('')
 
 if args.register:
-    r_username = args.register[0]
-
-    r_password = args.register[1]
-
-    register(r_username, r_password)
-
-    auth_details = open("login.txt", "w")
-
-    auth_details.write(args.register[0] + " " + args.register[1])
-
-    auth_details.close()
+    register(*args.register)
+    with open("login.txt", "w") as auth_details:
+        auth_details.write(' '.join(args.register))
 
 if args.add_account:
-
-    account_name = args.add_account[0]
-
-    account_password = args.add_account[1]
-
-    account_website = args.add_account[2]
-
-    add_account(account_name, account_password, account_website)
+    add_account(*args.add_account)
 
 if args.get_accounts:
-
-    account_website = args.get_accounts[0]
-
-    get_accounts(account_website)
-
+    get_accounts(args.get_accounts[0])
 
 
 context = ssl.create_default_context(
@@ -134,8 +139,6 @@ def on_message_received(message):
             account = arg.split(",")
             print("Username: " + account[0], "--- Password " + account[1])
     exit()
-
-
 
 
 def start_client():
