@@ -22,8 +22,8 @@ users_collection = database["Users"]
 accounts_collection = database["Accounts"]
 
 
-HOST = socket.gethostbyname(socket.gethostname())
-PORT = 6952
+HOST = socket.gethostbyname("")
+PORT = 6969
 
 server_cert = 'server.crt'
 server_key = 'server.key'
@@ -72,14 +72,28 @@ def login_user(username, password_hash):
 
 
 # change the password for a user
-def change_user_password(username, password_hash, new_password_hash, new_password_salt):
+def change_user_password(username, password, new_password):
     global users_collection
+
+    print("salting")
+
+    salt = get_salt(username)
+    password_hash = bcrypt.hashpw(bytes(password, 'utf-8'), salt)
+    print("salted")
+
+    new_password_salt = bcrypt.gensalt()
+    print("salted2")
+
+    new_password_hash = bcrypt.hashpw(bytes(new_password, 'utf-8'), new_password_salt)
+    print("hashed")
+
     try:
         user = {"username": username, "password_hash": password_hash}
         new_password = {"$set": {"password_hash": new_password_hash, "password_salt": new_password_salt}}
 
         users_collection.update_one(user, new_password)
     except Exception:
+        print("exception")
         pass
 
 
@@ -168,6 +182,13 @@ def handle_client(sock):
                     print(accounts_str)
                     conn.send(bytes("ac: " + accounts_str, "utf-8"))
                     print("sent")
+            if args[0] == 'd:':
+                if login(args[1], args[2]):
+                    delete_account(args[1], args[3], args[4], args[5])
+            if args[0] == 'cp:':
+                print(args)
+                if login(args[1], args[2]):
+                    change_user_password(args[1], args[2], args[3])
 
 
 
