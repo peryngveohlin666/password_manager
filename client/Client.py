@@ -6,15 +6,20 @@ import sys
 import argparse
 from termcolor import colored
 from pyfiglet import figlet_format
+import bcrypt
 
 
 
-HOST = socket.gethostbyname("")
+HOST = socket.gethostbyname("localhost")
 PORT = 6969
+
 server_sni_hostname = 'example.com'
 server_cert = '../server/server.crt'
 client_cert = 'client.crt'
 client_key = 'client.key'
+
+# a client side pepper for double hashing
+PEPPER = b'$2b$12$iqR2Wq8nLvhiNFmBun/4Fe'
 
 BUFFER_SIZE = 4096
 
@@ -49,6 +54,14 @@ if not len(sys.argv) > 1:
 # one liner to open the file and extract the login and whether or not details are present
 with open("login.txt", "r") as file:
     login_details = file.read()
+
+    # hash the pw
+    if login_details:
+        try:
+            login_details = login_details.split(" ")[0] + " " + str(bcrypt.hashpw(bytes(login_details.split(" ")[1], encoding='utf8'), PEPPER))
+        except:
+            pass
+
     logged = login_details != ""
 
 
@@ -66,6 +79,7 @@ def send_message(msg):
 
 def register(username, password):
     print(colored(' '.join(["Registering:", username, password]), "red"))
+    password = str(bcrypt.hashpw(bytes(password, encoding='utf8'), PEPPER))
     send_message(' '.join(["r:", username, password]))
 
     with open("login.txt", "w") as auth_details:
@@ -94,15 +108,18 @@ def delete_account(username, password, website):
 
 def change_password(new_password):
     global login_details
-    check_logged_in()
 
-    send_message(' '.join(["cp:", login_details, new_password]))
+    check_logged_in()
 
     username = login_details.split(" ")[0]
 
     with open("login.txt", "w") as auth_details:
         auth_details.write(username + " " + new_password)
         auth_details.close()
+
+    new_password = str(bcrypt.hashpw(bytes(new_password, encoding='utf8'), PEPPER))
+
+    send_message(' '.join(["cp:", login_details, new_password]))
 
 
 if args.login:
