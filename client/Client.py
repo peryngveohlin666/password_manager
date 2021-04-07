@@ -7,10 +7,11 @@ import argparse
 from termcolor import colored
 from pyfiglet import figlet_format
 import bcrypt
+import simplecrypt
 
 
 
-HOST = socket.gethostbyname("localhost")
+HOST = socket.gethostbyname("")
 PORT = 6969
 
 server_sni_hostname = 'example.com'
@@ -45,6 +46,8 @@ args = parser.parse_args()
 message = b''
 response = b''
 
+encryption_password = ""
+
 
 print(colored(figlet_format('DesuPassword'), 'green'))
 
@@ -58,6 +61,8 @@ with open("login.txt", "r") as file:
     # hash the pw
     if login_details:
         try:
+            encryption_password = login_details.split(" ")[1] + reversed(login_details.split(" ")[0])
+
             login_details = login_details.split(" ")[0] + " " + str(bcrypt.hashpw(bytes(login_details.split(" ")[1], encoding='utf8'), PEPPER))
         except:
             pass
@@ -89,7 +94,7 @@ def register(username, password):
 def add_account(username, password, website):
     global login_details
     check_logged_in()
-    send_message(' '.join(["a:", login_details, username, password, website]))
+    send_message(' '.join(["a:", login_details, encrypt(encryption_password, username), encrypt(encryption_password, password), website]))
 
 
 def get_accounts(website):
@@ -197,7 +202,7 @@ def on_message_received(message):
             for arg in args:
                 i+=1
                 account = arg.split(",")
-                print(colored("Account: ", "green") + colored(i, "yellow") + " " + colored("Username: ", "green") + colored(account[0], "blue"), colored("Password: " , "green") + colored(account[1], "red"))
+                print(colored("Account: ", "green") + colored(i, "yellow") + " " + colored("Username: ", "green") + colored(decrypt(encryption_password, account[0]), "blue"), colored("Password: " , "green") + (decrypt(encryption_password, account[1]), "red"))
         except:
             print(colored("You have no accounts for this service", "red"))
 
