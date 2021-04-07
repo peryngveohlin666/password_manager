@@ -23,7 +23,7 @@ accounts_collection = database["Accounts"]
 
 
 HOST = socket.gethostbyname("")
-PORT = 6969
+PORT = 6967
 
 server_cert = 'server.crt'
 server_key = 'server.key'

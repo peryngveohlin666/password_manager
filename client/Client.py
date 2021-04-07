@@ -7,12 +7,11 @@ import argparse
 from termcolor import colored
 from pyfiglet import figlet_format
 import bcrypt
-import simplecrypt
-
+from simplecrypt import encrypt, decrypt
 
 
 HOST = socket.gethostbyname("")
-PORT = 6969
+PORT = 6967
 
 server_sni_hostname = 'example.com'
 server_cert = '../server/server.crt'
@@ -61,7 +60,7 @@ with open("login.txt", "r") as file:
     # hash the pw
     if login_details:
         try:
-            encryption_password = login_details.split(" ")[1] + reversed(login_details.split(" ")[0])
+            encryption_password = login_details.split(" ")[1]
 
             login_details = login_details.split(" ")[0] + " " + str(bcrypt.hashpw(bytes(login_details.split(" ")[1], encoding='utf8'), PEPPER))
         except:
@@ -93,8 +92,10 @@ def register(username, password):
 
 def add_account(username, password, website):
     global login_details
+    global encryption_password
+
     check_logged_in()
-    send_message(' '.join(["a:", login_details, encrypt(encryption_password, username), encrypt(encryption_password, password), website]))
+    send_message(' '.join(["a:", login_details, encrypt(encryption_password, username).hex(), encrypt(encryption_password, password).hex(), website]))
 
 
 def get_accounts(website):
@@ -199,12 +200,17 @@ def on_message_received(message):
         args = args[1:]
         try:
             i = 0
+            print(colored("------------------------------------------------------------------", "cyan"))
             for arg in args:
                 i+=1
                 account = arg.split(",")
-                print(colored("Account: ", "green") + colored(i, "yellow") + " " + colored("Username: ", "green") + colored(decrypt(encryption_password, account[0]), "blue"), colored("Password: " , "green") + (decrypt(encryption_password, account[1]), "red"))
+                print(colored("Account: ", "green") + colored(i, "yellow"))
+                print(colored("Username: ", "green") + colored((decrypt(encryption_password, bytes.fromhex(account[0]))).decode('utf8'), "blue"))
+                tmp_pass = (decrypt(encryption_password, bytes.fromhex(account[1]))).decode('utf8')
+                print(colored("Password: " , "green") + colored(tmp_pass, "red"))
+                print(colored(len("Password: " + tmp_pass) * "-", "cyan"))
         except:
-            print(colored("You have no accounts for this service", "red"))
+            print(colored("You have no accounts for this service", "cyan"))
 
     exit()
 
