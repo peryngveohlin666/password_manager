@@ -95,14 +95,14 @@ def add_account(username, password, website):
     global encryption_password
 
     check_logged_in()
-    send_message(' '.join(["a:", login_details, encrypt(encryption_password, username).hex(), encrypt(encryption_password, password).hex(), website]))
+    send_message(' '.join(["a:", login_details, encrypt(encryption_password, username).hex(), encrypt(encryption_password, password).hex(), str(bcrypt.hashpw(website.encode(), PEPPER))]))
 
 
 def get_accounts(website):
     global login_details
     check_logged_in()
 
-    send_message(' '.join(["g:", str(login_details), website]))
+    send_message(' '.join(["g:", str(login_details), str(bcrypt.hashpw(website.encode(), PEPPER))]))
 
 
 def delete_account(username, password, website):
