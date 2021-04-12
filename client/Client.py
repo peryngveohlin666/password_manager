@@ -36,8 +36,8 @@ parser.add_argument("--add-account", default=False,
                     help="--add-account <username> <password> <website> ", nargs=3)
 parser.add_argument("--get-accounts", default=False,
                     help="--get-accounts <website>", nargs=1)
-parser.add_argument("--delete-account", default=False,
-                    help="--delete-account <username> <password> <website>", nargs=3)
+parser.add_argument("--delete-accounts", default=False,
+                    help="--delete-accounts <website>", nargs=1)
 
 args = parser.parse_args()
 
@@ -105,13 +105,13 @@ def get_accounts(website):
     send_message(' '.join(["g:", str(login_details), str(bcrypt.hashpw(website.encode(), PEPPER))]))
 
 
-def delete_account(username, password, website):
+def delete_accounts(website):
     global login_details
     global encryption_password
 
     check_logged_in()
 
-    send_message(' '.join(["d:", login_details, encrypt(encryption_password, username).hex(), encrypt(encryption_password, password).hex(), str(bcrypt.hashpw(website.encode(), PEPPER))]))
+    send_message(' '.join(["d:", str(login_details) + " " + str(bcrypt.hashpw(website.encode(), PEPPER))]))
 
 
 def change_password(new_password):
@@ -152,8 +152,8 @@ if args.add_account:
 if args.get_accounts:
     get_accounts(args.get_accounts[0])
 
-if args.delete_account:
-    delete_account(*args.delete_account)
+if args.delete_accounts:
+    delete_accounts(args.delete_accounts[0])
 
 if args.change_password:
     change_password(args.change_password[0])

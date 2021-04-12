@@ -120,10 +120,10 @@ def insert_account(owner, username, password, website, description=""):
 
 
 # delete an account from the database
-def delete_account(owner, username, password, website, description=""):
+def delete_accounts(owner, website, description=""):
     global accounts_collection
-    accounts_collection.delete_one(
-        {"owner": owner, "username": username, "password": password, "website": website, "description": description})
+    accounts_collection.delete_many(
+        {"owner": owner, "website": website, "description": description})
 
 
 # update an accounts password
@@ -184,7 +184,7 @@ def handle_client(sock):
                     print("sent")
             if args[0] == 'd:':
                 if login(args[1], args[2]):
-                    delete_account(args[1], args[3], args[4], args[5])
+                    delete_accounts(args[1], args[3])
             if args[0] == 'cp:':
                 print(args)
                 if login(args[1], args[2]):

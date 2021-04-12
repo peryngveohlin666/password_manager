@@ -13,7 +13,7 @@ Database.insert_account("test", "test", "test", "test")
 
 print(Database.get_accounts("test", "test"))
 
-Database.delete_account("test", "test", "test", "test")
+Database.delete_accounts("test", "test", "test", "test")
 
 print(Database.get_accounts("test", "test"))
 
