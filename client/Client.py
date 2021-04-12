@@ -107,9 +107,11 @@ def get_accounts(website):
 
 def delete_account(username, password, website):
     global login_details
+    global encryption_password
+
     check_logged_in()
 
-    send_message(' '.join(["d:", login_details, username, password, website]))
+    send_message(' '.join(["d:", login_details, encrypt(encryption_password, username).hex(), encrypt(encryption_password, password).hex(), str(bcrypt.hashpw(website.encode(), PEPPER))]))
 
 
 def change_password(new_password):
