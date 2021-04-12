@@ -10,7 +10,7 @@ import bcrypt
 from simplecrypt import encrypt, decrypt
 
 
-HOST = socket.gethostbyname("")
+HOST = "52.14.215.69"
 PORT = 6967
 
 server_sni_hostname = 'example.com'
@@ -137,6 +137,7 @@ if args.login:
 if args.logout:
     with open("login.txt", "w") as auth_details:
         auth_details.write('')
+        sys.exit()
 
 if args.register:
     register(*args.register)
