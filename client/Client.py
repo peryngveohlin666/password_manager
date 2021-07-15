@@ -10,8 +10,8 @@ import bcrypt
 from simplecrypt import encrypt, decrypt
 
 
-HOST = "52.14.215.69"
-PORT = 6967
+HOST = "127.0.0.1"
+PORT = 6969
 
 server_sni_hostname = 'example.com'
 server_cert = '../server/server.crt'
@@ -38,6 +38,8 @@ parser.add_argument("--get-accounts", default=False,
                     help="--get-accounts <website>", nargs=1)
 parser.add_argument("--delete-accounts", default=False,
                     help="--delete-accounts <website>", nargs=1)
+parser.add_argument("--delete-account", default=False,
+                    help="--delete-account <username> <website>", nargs=2)
 
 args = parser.parse_args()
 
@@ -93,9 +95,15 @@ def register(username, password):
 def add_account(username, password, website):
     global login_details
     global encryption_password
+    
+    encrypted_username = encrypt(encryption_password, username).hex()
+    encrypted_password = encrypt(encryption_password, password).hex()
+    
+    hashed_website = str(bcrypt.hashpw(website.encode(), PEPPER))
+    hashed_username = str(bcrypt.hashpw(username.encode(), PEPPER))
 
     check_logged_in()
-    send_message(' '.join(["a:", login_details, encrypt(encryption_password, username).hex(), encrypt(encryption_password, password).hex(), str(bcrypt.hashpw(website.encode(), PEPPER))]))
+    send_message(' '.join(["a:", login_details, encrypted_username, encrypted_password, hashed_website, hashed_username]))
 
 
 def get_accounts(website):
@@ -112,6 +120,18 @@ def delete_accounts(website):
     check_logged_in()
 
     send_message(' '.join(["d:", str(login_details) + " " + str(bcrypt.hashpw(website.encode(), PEPPER))]))
+    
+    
+def delete_account(username, website):
+    global login_details
+    global encryption_password
+    
+    hashed_website = str(bcrypt.hashpw(website.encode(), PEPPER))
+    hashed_username = str(bcrypt.hashpw(username.encode(), PEPPER))
+
+    check_logged_in()
+
+    send_message(' '.join(["d1:", str(login_details), hashed_username, hashed_website]))
 
 
 def change_password(new_password):
@@ -157,7 +177,9 @@ if args.delete_accounts:
 
 if args.change_password:
     change_password(args.change_password[0])
-
+    
+if args.delete_account:
+    delete_account(*args.delete_account)
 
 context = ssl.create_default_context(
     ssl.Purpose.SERVER_AUTH, cafile=server_cert)
@@ -181,7 +203,7 @@ def handle_conn():
         # if there is a message, send it
         if message != b'':
             conn.send(message)
-            if b'a:' in message or b'r:' in message or b'd:' in message or b'cp:' in message:
+            if b'a:' in message or b'r:' in message or b'd:' in message or b'cp:' in message or b'd1:' in message:
 
                 sys.exit()
             message = b''

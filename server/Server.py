@@ -22,8 +22,8 @@ users_collection = database["Users"]
 accounts_collection = database["Accounts"]
 
 
-HOST = "172.31.7.18"
-PORT = 6967
+HOST = "127.0.0.1"
+PORT = 6969
 
 server_cert = 'server.crt'
 server_key = 'server.key'
@@ -113,17 +113,23 @@ def get_accounts(owner, website):
 
 
 # insert a new account to the database
-def insert_account(owner, username, password, website, description=""):
+def insert_account(owner, username, password, website, username_hash, description=""):
     global accounts_collection
     accounts_collection.insert_one(
-        {"owner": owner, "username": username, "password": password, "website": website, "description": description})
+        {"owner": owner, "username": username, "password": password, "website": website, "username_hash": username_hash, "description": description})
 
 
-# delete an account from the database
+# delete all the accounts for a website from the database
 def delete_accounts(owner, website, description=""):
     global accounts_collection
     accounts_collection.delete_many(
         {"owner": owner, "website": website, "description": description})
+
+# delete the accounts with the username from the database 
+def delete_account(owner, username_hash, website, description=""):
+    global accounts_collection
+    accounts_collection.delete_many(
+        {"owner": owner, "website": website, "username_hash":username_hash ,"description": description})
 
 
 # update an accounts password
@@ -163,15 +169,12 @@ def handle_client(sock):
             if args[0] == 'r:':
                 register(args[1], args[2])
             if args[0] == 'a:':
-                print("a")
                 if login(args[1], args[2]):
-                    print("logged in")
-                    insert_account(args[1], args[3], args[4], args[5])
+                    insert_account(args[1], args[3], args[4], args[5], args[6])
             if args[0] == 'g:':
                 print("g")
               #  print(args[1],args[2])
                 if login(args[1], args[2]):
-                    print("logged")
                     accounts = get_accounts(args[1], args[3])
                     accounts_str = ""
                     print(accounts)
@@ -181,7 +184,6 @@ def handle_client(sock):
                     accounts_str = accounts_str[0:len(accounts_str) - 1]
                     print(accounts_str)
                     conn.send(bytes("ac: " + accounts_str, "utf-8"))
-                    print("sent")
             if args[0] == 'd:':
                 if login(args[1], args[2]):
                     delete_accounts(args[1], args[3])
@@ -189,6 +191,9 @@ def handle_client(sock):
                 print(args)
                 if login(args[1], args[2]):
                     change_user_password(args[1], args[2], args[3])
+            if args[0] == 'd1:':
+                if login(args[1], args[2]):
+                    delete_account(args[1], args[3], args[4])
 
 
 
