@@ -1,5 +1,4 @@
 import concurrent.futures
-
 import socket
 import ssl
 import sys
@@ -8,7 +7,7 @@ from termcolor import colored
 from pyfiglet import figlet_format
 import bcrypt
 from simplecrypt import encrypt, decrypt
-
+import json
 
 HOST = "127.0.0.1"
 PORT = 6969
@@ -48,6 +47,12 @@ message = b''
 response = b''
 
 encryption_password = ""
+
+config_file = open("config.json").read()
+
+config = json.loads(config_file)
+
+using_authenticator = ("True" == config.get("using_authenticator"))
 
 
 print(colored(figlet_format('DesuPassword'), 'green'))
